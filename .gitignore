@@ -59,3 +59,16 @@ nb-configuration.xml
 ## OS X
 ##########################
 .DS_Store
+
+syntax: regexp
+^docs/metrics$
+syntax: regexp
+^create-random\.sh$
+syntax: regexp
+^output\.xml$
+syntax: regexp
+^bin$
+syntax: regexp
+^\.settings$
+syntax: regexp
+^build$
