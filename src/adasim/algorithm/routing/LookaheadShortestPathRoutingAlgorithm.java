@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import adasim.filter.AdasimFilter;
 import adasim.model.RoadSegment;
 import adasim.model.Vehicle;
 
@@ -81,7 +82,7 @@ public class LookaheadShortestPathRoutingAlgorithm extends AbstractRoutingAlgori
 	 * @param lookahead
 	 */
 	public LookaheadShortestPathRoutingAlgorithm( int lookahead ){
-		this(lookahead, lookahead );
+		this(lookahead, lookahead ); 
 	}
 
 	/**
@@ -138,7 +139,11 @@ public class LookaheadShortestPathRoutingAlgorithm extends AbstractRoutingAlgori
 			
 			for ( RoadSegment node : nodes.get(current).getNeighbors() ) {
 				int depth = getCurrentDepth(previous, nodes, source, nodes.get(current) );
-				
+
+//				if (node.isClosed()) {
+//					node.setClosed(false);
+//					logger.info(" NEWW - OPEN : Road :"+ node.getID());
+//				}
 				//if we ever make vehicle extensible, then we have to query the class of the configure vehicle
 				
 				int t = dist[current] + ( withDelay ? 
@@ -151,6 +156,52 @@ public class LookaheadShortestPathRoutingAlgorithm extends AbstractRoutingAlgori
 			}
 		}
 		return reconstructPath( previous, nodes, source, target );
+	}
+	
+	private List<RoadSegment> removeObstacles(List<RoadSegment> nodes, RoadSegment source, RoadSegment target, int l) {
+		
+		int size = nodes.size();
+		int[] dist = new int[size];
+		int[] previous = new int[size];
+		Set<Integer> q = new HashSet<Integer>();
+		
+		init( dist, previous, getIndex(nodes, source) , q );
+		
+		
+		while( !q.isEmpty() ) {
+			int current = getIndexOfMin(q, dist);
+			if ( dist[current] == Integer.MAX_VALUE ) break;
+			q.remove( current );
+			
+			for ( RoadSegment node : nodes.get(current).getNeighbors() ) {
+				
+				AdasimFilter filter = node.getUncertaintyFilter();
+				
+				
+			}
+		}
+		
+		return reconstructPath(previous, nodes, source, target);
+	}
+	
+	private List<RoadSegment> overrideTrafficController(List<RoadSegment> nodes, RoadSegment source, RoadSegment target, int l) {
+		
+		int size = nodes.size();
+		int[] dist = new int[size];
+		int[] previous = new int[size];
+		
+		
+		return reconstructPath(previous, nodes, source, target);
+	}
+	
+	private List<RoadSegment> shareInformation(List<RoadSegment> nodes, RoadSegment source, RoadSegment target, int l) {
+		
+		int size = nodes.size();
+		int[] dist = new int[size];
+		int[] previous = new int[size];
+		
+		
+		return reconstructPath(previous, nodes, source, target);
 	}
 	
 

@@ -35,6 +35,6 @@ package adasim.algorithm.routing;
 public class AdaptiveRoutingAlgorithm extends LookaheadShortestPathRoutingAlgorithm {
 
 	public AdaptiveRoutingAlgorithm() {
-		super(5);
+		super(1);
 	}
 }

@@ -8,7 +8,7 @@ public class DisasterDelayFunction implements TrafficDelayFunction {
 	
 	@Override
 	public int getDelay(int weight, int capacity, int number) {	
-		return Math.max(weight, capacity);
+		return 0;
 	}
 
 }
