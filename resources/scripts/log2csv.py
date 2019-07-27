@@ -30,28 +30,9 @@ def parse_arguments():
 	parser.add_argument('-d', dest='DATA_DIR', required=True, help='Directory containing simulation config and output.')
 	return parser.parse_args()
 
-def get_cmd_output(cmd, args):
-	'''
-	Returns the standard output from running:
-	$ cmd args[0] args[1] .. args[n]
-
-	Where cmd is the command name (e.g., 'svn') and args is a list of
-	arguments to the command (e.g., ['help', 'log']).
-	'''
-	return subprocess.Popen([cmd] + args,
-							stdout=subprocess.PIPE,
-							stderr=subprocess.STDOUT).communicate()[0]
-
-def run_simulation(nodes, cars, iteration):
-	print str(iteration) + ": Running simulation from " + file_prefix(nodes, cars, iteration) + ".xml"
-	log = get_cmd_output( "java", ["adasim.TrafficMain", "-I", file_prefix(nodes, cars, iteration) + ".xml"])
-	out = open( file_prefix(nodes, cars, iteration) + ".log", "w")
-	out.write( log );
-	out.close()
-
 def process_path(line):
 	#print line
-	split_re = re.compile(".+Vehicle: (\d+).+\[(.*)]")
+	split_re = re.compile(r'.+Vehicle: (\d+).+\[(.*)]')
 	result = split_re.match(line)
 	car_id = result.group(1)
 	#print "ID: " + car_id
@@ -64,7 +45,7 @@ def process_path(line):
 	return car
 
 def process_move(line):
-	split_re = re.compile(".+Vehicle: (\d+).+")
+	split_re = re.compile(r'.+Vehicle: (\d+).+')
 	return split_re.match(line).group(1)
 
 def process_log(file, prefix, cars):
@@ -76,6 +57,7 @@ def process_log(file, prefix, cars):
 	invalid_re = re.compile(".+INVALID: .+" )
 
 	for line in file:
+		# print('line', line, prefix)
 		if path_re.match( line ):
 			car = process_path(line)
 			car.id = car.id + prefix
@@ -86,6 +68,7 @@ def process_log(file, prefix, cars):
 			
 		elif stop_re.match(line):
 			moved_car_id = process_move(line) + prefix
+			# print('moved car id ', moved_car_id)
 			cars[moved_car_id].time = time
 			
 		elif time_re.match(line):
@@ -102,10 +85,10 @@ def process_xml(file, prefix, cars):
 	cars_node = doc.documentElement.getElementsByTagName("cars")[0]
 	def_strat = cars_node.getAttribute("default_strategy")
 	for car in car_nodes:
-		#print "Car " + car.getAttribute("id") + " Strategy: " + car.getAttribute("strategy") 
+		# print ("Car " + car.getAttribute("id") + " Strategy: " + car.getAttribute("strategy") )
 		car_id = car.getAttribute("id") + prefix
-		if cars.has_key(car_id):
-			cars[car_id].strategy = def_strat
+		if car_id in cars:
+			cars[car_id].strategy = car.getAttribute("strategy") 
 	return cars
 
 def filename_filter(files, regex):
@@ -119,9 +102,9 @@ def filename_filter(files, regex):
 
 def process_files(dir, files, prefix):
 	cars = {}
-	print "Checking " + dir + "/" + prefix
+	print ("Checking " + dir + "/" + prefix)
 	for file in filename_filter( files, "(" + prefix + "-.+)\.xml"):
-		print "\t Processing " + file
+		print ("\t Processing " + file)
 		log_file = open( dir + "/" + file + ".log" )
 		xml_file = open( dir + "/" + file + ".xml" )
 		cars = process_log(log_file, file, cars)
@@ -143,7 +126,7 @@ def write_cars(file, prefix, cars):
 		write_line(file, nums, car)
 
 def get_prefixes(files):
-	r = re.compile("(\d+-\d+)-\d+.xml")
+	r = re.compile(r'(\d+-\d+)-\d+.xml')
 	prefixes = set()
 	for file in files:
 		result = r.match(file)
@@ -154,12 +137,17 @@ def get_prefixes(files):
 def main(args):
 	'''Main cycle'''
 	files = os.listdir( args.DATA_DIR )
+	all_output_file = open("all.csv", "w")
+	write_line2(all_output_file, "Nodes", "Cars", "Car", "Hops", "Invalid", "Time", "Strategy" )
 	for prefix in get_prefixes(files):
 		output_file = open( prefix + ".csv", "w")
 		write_line2(output_file, "Nodes", "Cars", "Car", "Hops", "Invalid", "Time", "Strategy" )
 		cars = process_files(args.DATA_DIR, files, prefix )
 		write_cars(output_file, prefix, cars)
+		write_cars(all_output_file, prefix, cars)
 		output_file.close()
+	all_output_file.close()
+
 
 if __name__ == "__main__":
 	args = parse_arguments()

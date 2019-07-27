@@ -34,16 +34,21 @@ def file_prefix(n,c,i):
 	return str(n) + "-" + str(c) + "-" + str(i)
 
 def build_simulation(nodes, cars, iteration):
-	print str(iteration) + ": Building simulation with " + nodes + " nodes, " + cars + " cars "
-	print get_cmd_output( "java", ["adasim.generator.Generator", "-N", nodes, "-C", cars, "-D", "4", "-o", file_prefix(nodes, cars, iteration) + ".xml",
-		"-d", "3:6", "-S", "adasim.algorithm.routing.ShortestPathRoutingAlgorithm,adasim.algorithm.routing.TrafficLookaheadRoutingAlgorithm",
-		"--one-way-prob", "0.05" ] )
+    print ( str(iteration) , ": Building simulation with " , nodes , " nodes, " , cars , " cars ")
+    print (get_cmd_output( "java", ["-cp", "adasim-1.1.0-deps.jar", "adasim.generator.Generator", 
+        "-N", nodes, 
+        "-C", cars, 
+        "-D", "4", 
+        "-o", file_prefix(nodes, cars, iteration) + ".xml",
+		"-d", "9:12", 
+        "-S", "adasim.algorithm.routing.AdaptiveRoutingAlgorithm",
+		"--one-way-prob", "0.05" ] ))
 
 def run_simulation(nodes, cars, iteration):
-	print str(iteration) + ": Running simulation from " + file_prefix(nodes, cars, iteration) + ".xml"
-	log = get_cmd_output( "java", ["adasim.TrafficMain", "-I", file_prefix(nodes, cars, iteration) + ".xml"])
-	out = open( file_prefix(nodes, cars, iteration) + ".log", "w")
-	out.write( log );
+	print( str(iteration) + ": Running simulation from " + file_prefix(nodes, cars, iteration) + ".xml")
+	log = get_cmd_output( "java", ["-jar", "adasim-1.1.0-deps.jar", "-I", file_prefix(nodes, cars, iteration) + ".xml"])
+	out = open( file_prefix(nodes, cars, iteration) + ".log", "wb")
+	out.write( (log) )
 	out.close()
 
 def main(args):
