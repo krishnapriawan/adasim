@@ -7,10 +7,10 @@
 		<car id="4" start="10" end="5" />
 	</cars>
 
-	<graph default_strategy="adasim.algorithm.delay.DisasterDelayFunction" default_capacity="4">
-		<node id="0" neighbors="4 7"  delay ="5" />
-		<node id="1" neighbors="5"  delay ="3" />
-		<node id="2" neighbors="4 7 9"  delay ="2" />
+	<graph default_strategy="adasim.algorithm.delay.DisasterDelayFunction" default_capacity="9">
+		<node id="0" neighbors="4 7" delay ="1" />
+		<node id="1" neighbors="5" delay ="1" />
+		<node id="2" neighbors="4 7 9" delay ="1" />
 		<node id="3" neighbors="1" />
 		<node id="4" neighbors="6 8" />
 		<node id="5" neighbors="0 2 9" />
