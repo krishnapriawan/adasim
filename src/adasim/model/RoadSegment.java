@@ -251,12 +251,19 @@ public final class RoadSegment extends AbstractAdasimAgent {
 	 * vehicle being stopped.
 	 */
 	public void enterNode(Vehicle v) {
-		if (closed) {
-			logger.info( "INVALID: Node " + this.getID() + " is closed." );
+		String rs = v.getStrategy().getClass().getName();
+		boolean priorityCar = rs.equalsIgnoreCase("adasim.algorithm.routing.PriorityRoutingAlgorithm");
+		logger.info("Strategy: "+ rs +
+				". Vehicle: "+ v.getID() );
+		if (closed && !priorityCar) {
+			logger.info( "INVALID: Vehicle: "+ v.getID() +". Node " + this.getID() + " is closed." );
 			park(v);
 		} else {
 			logger.info( "ENTER: " + v.vehiclePosition() );
-			queue.enqueue(v, getCurrentDelay() );
+//			if (rs.equals("adasim.algorithm.routing.PriorityRoutingAlgorithm")) {
+//				logger.info("delay: "+getCurrentDelay());				
+//			}
+			queue.enqueue(v, priorityCar ? 1 : getCurrentDelay() );
 			v.setCurrentPosition(this);
 		}
 	}
