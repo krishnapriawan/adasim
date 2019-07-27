@@ -91,10 +91,23 @@ public class SimulationXMLWriter {
 		Document doc = factory.document( s );
 		writeGraph( s, sim.getMap() );
 		writeVehicles( s, sim.getAgents() );
+		writeRoadClosureAgent(s);
 		FileOutputStream out = new FileOutputStream( f );
 		XMLOutputter p = new XMLOutputter( Format.getPrettyFormat() );
 		p.output(doc, out);
 		out.close();
+	}
+	
+	private void writeRoadClosureAgent(Element doc) {
+		Element as = factory.element("agents");
+		Element a = factory.element("agent");
+		
+		a.setAttribute(factory.attribute("id", "222"));
+		a.setAttribute(factory.attribute("class", "adasim.agent.RoadClosureAgent"));
+		a.setAttribute(factory.attribute("parameters", "0.5:10"));
+		
+		as.addContent(a);
+		doc.addContent(as);
 	}
 
 	/**
@@ -118,7 +131,7 @@ public class SimulationXMLWriter {
 		try {
 			Element c = factory.element( "car" );
 			c.setAttribute( factory.attribute( "start", "" + ((AdasimAgent) ReflectionUtils.getProperty( v, "getStartNode")).getID() ) );
-			c.setAttribute( factory.attribute( "end", "" + ((RoadSegment) ReflectionUtils.getProperty( v, "getStartNode")).getID() ) );
+			c.setAttribute( factory.attribute( "end", "" + ((RoadSegment) ReflectionUtils.getProperty( v, "getEndNode")).getID() ) );
 			c.setAttribute( factory.attribute( "id", "" + v.getID() ) );
 			c.setAttribute( factory.attribute( "strategy", "" + v.getStrategy().getClass().getCanonicalName() ) );
 			vehicles.addContent(c);

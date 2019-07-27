@@ -26,6 +26,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import adasim.agent.AdasimAgent;
+import adasim.agent.RoadClosureAgent;
 import adasim.algorithm.delay.LinearTrafficDelayFunction;
 import adasim.algorithm.delay.TrafficDelayFunction;
 import adasim.algorithm.routing.RoutingAlgorithm;
@@ -93,10 +94,45 @@ public class SimulationBuilder {
 	 */
 	private List<AdasimAgent> buildVehicles(ConfigurationOptions opts, AdasimMap g) throws ConfigurationException {
 		List<AdasimAgent> vehicles = new ArrayList<AdasimAgent>();
+		int j = 0;
 		for ( int i = 0; i < opts.getNumVehicles(); i++ ) {
 			vehicles.add( buildVehicle( i, opts, g ) );
+			j=i;
+		}
+		j+=1;
+		for ( int i = 0; i < (opts.getNumVehicles()/10); i++ ) {
+			vehicles.add( buildPriorityVehicle( j++, opts, g ) );
 		}
 		return vehicles;
+	}
+	
+	private Vehicle buildPriorityVehicle(int i, ConfigurationOptions opts, AdasimMap g) throws ConfigurationException {
+		Class c = null;
+		try {
+			c = Class.forName( "adasim.algorithm.routing.PriorityRoutingAlgorithm" );
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		RoutingAlgorithm cs = null;
+		try {
+			cs = (RoutingAlgorithm) c.newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		cs.setMap(g);
+		List<RoadSegment> nodes = g.getRoadSegments();
+		RoadSegment start = randomNode( nodes );
+		RoadSegment end;
+		do {
+			end = randomNode(nodes);
+		} while ( start.equals(end) );
+
+		return new Vehicle( start, end, cs, i);
 	}
 
 	/**
